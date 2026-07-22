@@ -6,7 +6,7 @@
   "scripts": {
     "start": "pm2 start index.js --deep-monitoring --attach --name DANUWA-MD",
     "stop": "pm2 stop NIMIRA-MD",
-    "restart": "pm2 restart DANUWA-MD"
+    "restart": "pm2 restart NIMIRA-MD"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0",
