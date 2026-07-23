@@ -128,7 +128,7 @@ async function connectToWA() {
     const sender = mek.key.fromMe ? NIMIRA_MD.user.id : (mek.key.participant || mek.key.remoteJid);
     const senderNumber = sender.split('@')[0];
     const isGroup = from.endsWith('@g.us');
-    const botNumber = NIMIRA MD.user.id.split(':')[0];
+    const botNumber = NIMIRA.user.id.split(':')[0];
     const pushname = mek.pushName || 'Sin Nombre';
     const isMe = botNumber.includes(senderNumber);
     const isOwner = ownerNumber.includes(senderNumber) || isMe;
