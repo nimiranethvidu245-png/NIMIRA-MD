@@ -67,7 +67,7 @@ async function connectToWA() {
   const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '/auth_info_baileys/'));
   const { version } = await fetchLatestBaileysVersion();
 
-  const NIMIRA MD = makeWASocket({
+  const NIMIRA_MD = makeWASocket({
     logger: P({ level: 'silent' }),
     printQRInTerminal: false,
     browser: Browsers.macOS("Firefox"),
@@ -78,7 +78,7 @@ async function connectToWA() {
     generateHighQualityLinkPreview: true,
   });
 
-  NIMIRA MD.ev.on('connection.update', async (update) => {
+  NIMIRA_MD.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === 'close') {
       if (lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
@@ -101,12 +101,12 @@ async function connectToWA() {
     }
   });
 
-  NIMIRA MD.ev.on('creds.update', saveCreds);
+  NIMIRA_MD.ev.on('creds.update', saveCreds);
 
-  NIMIRA MD.ev.on('messages.upsert', async ({ messages }) => {
+  NIMIRA_MD.ev.on('messages.upsert', async ({ messages }) => {
     for (const msg of messages) {
       if (msg.messageStubType === 68) {
-        await NIMIRA MD.sendMessageAck(msg.key);
+        await NIMIRA_MD.sendMessageAck(msg.key);
       }
     }
 
@@ -116,7 +116,7 @@ async function connectToWA() {
     mek.message = getContentType(mek.message) === 'ephemeralMessage' ? mek.message.ephemeralMessage.message : mek.message;
     if (mek.key.remoteJid === 'status@broadcast') return;
 
-    const m = sms(danuwa, mek);
+    const m = sms(NIMIRA, mek);
     const type = getContentType(mek.message);
     const from = mek.key.remoteJid;
     const body = type === 'conversation' ? mek.message.conversation : mek.message[type]?.text || mek.message[type]?.caption || '';
@@ -125,16 +125,16 @@ async function connectToWA() {
     const args = body.trim().split(/ +/).slice(1);
     const q = args.join(' ');
 
-    const sender = mek.key.fromMe ? NIMIRA MD.user.id : (mek.key.participant || mek.key.remoteJid);
+    const sender = mek.key.fromMe ? NIMIRA_MD.user.id : (mek.key.participant || mek.key.remoteJid);
     const senderNumber = sender.split('@')[0];
     const isGroup = from.endsWith('@g.us');
     const botNumber = NIMIRA MD.user.id.split(':')[0];
     const pushname = mek.pushName || 'Sin Nombre';
     const isMe = botNumber.includes(senderNumber);
     const isOwner = ownerNumber.includes(senderNumber) || isMe;
-    const botNumber2 = await jidNormalizedUser(NIMIRA MD.user.id);
+    const botNumber2 = await jidNormalizedUser(NIMIRA_MD.user.id);
 
-    const groupMetadata = isGroup ? await NIMIRA MD.groupMetadata(from).catch(() => {}) : '';
+    const groupMetadata = isGroup ? await NIMIRA_MD.groupMetadata(from).catch(() => {}) : '';
     const groupName = isGroup ? groupMetadata.subject : '';
     const participants = isGroup ? groupMetadata.participants : '';
     const groupAdmins = isGroup ? await getGroupAdmins(participants) : '';
@@ -146,9 +146,9 @@ async function connectToWA() {
     if (isCmd) {
       const cmd = commands.find((c) => c.pattern === commandName || (c.alias && c.alias.includes(commandName)));
       if (cmd) {
-        if (cmd.react) NIMIRA MD.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
+        if (cmd.react) NIMIRA_MD.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
         try {
-          cmd.function(NIMIRA MD, mek, m, {
+          cmd.function(NIMIRA_MD, mek, m, {
             from, quoted: mek, body, isCmd, command: commandName, args, q,
             isGroup, sender, senderNumber, botNumber2, botNumber, pushname,
             isMe, isOwner, groupMetadata, groupName, participants, groupAdmins,
@@ -164,7 +164,7 @@ async function connectToWA() {
     for (const handler of replyHandlers) {
       if (handler.filter(replyText, { sender, message: mek })) {
         try {
-          await handler.function(NIMIRA MD, mek, m, {
+          await handler.function(NIMIRA_MD, mek, m, {
             from, quoted: mek, body: replyText, sender, reply,
           });
           break;
