@@ -106,28 +106,16 @@ async function connectToWA() {
 💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.
 
 ╰━━━━━━━━━━━━━━━━━━━━╯`);
-const up =(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
 
-✅ Successfully Connected
+const pluginFolder = fs.existsSync("./plugins")
+  ? "./plugins"
+  : "./Piugins";
 
-⚡ Status    : Online
-📡 Server    : Active
-🔐 Session   : Connected
-🚀 Bot       : Running 24/7
-
-💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.\nPREFIX: ${prefix}`;
-      await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
-        image: { url: `https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg` },
-        caption: up
-      });
-
-      fs.readdirSync("./plugins/").forEach((plugin) => {
-        if (path.extname(plugin).toLowerCase() === ".js") {
-          require(`./plugins/${plugin}`);
-        }
-      });
-    }
-  });
+fs.readdirSync(pluginFolder).forEach((plugin) => {
+  if (path.extname(plugin).toLowerCase() === ".js") {
+    require(path.join(__dirname, pluginFolder, plugin));
+  }
+});
 
   NIMIRA_MD.ev.on('creds.update', saveCreds);
 
@@ -145,7 +133,36 @@ const up =(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
     if (mek.key.remoteJid === 'status@broadcast') return;
 
     const m = sms(NIMIRA_MD, mek);
-    const type = getContentType(mek.message);
+    const type = getContentType(mek.messageconst up = `╭━━〔 🤖 NIMIRA MD 〕━━╮
+
+✅ Successfully Connected
+
+⚡ Status : Online
+📡 Server : GitHub Actions
+🔐 Session : Connected
+🚀 Runtime : 24/7
+
+📈 Trading AI Enabled
+
+✔ ICT
+✔ SMC
+✔ EMA
+✔ RSI
+✔ MACD
+✔ Fibonacci
+✔ Volume Profile
+✔ Malaysian SNR
+
+💎 Prefix : ${prefix}
+
+╰━━━━━━━━━━━━━━━━━━━━╯`;
+
+await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
+  image: {
+    url: "https://raw.githubusercontent.com/nimiranethvidu245-png/NIMIRA-MD/main/Images/IMG_20260719_092754.jpg"
+  },
+  caption: up
+});
     const from = mek.key.remoteJid;
     const body = type === 'conversation' ? mek.message.conversation : mek.message[type]?.text || mek.message[type]?.caption || '';
     const isCmd = body.startsWith(prefix);
@@ -183,7 +200,8 @@ const up =(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
             isBotAdmins, isAdmins, reply,
           });
         } catch (e) {
-          console.error("[PLUGIN ERROR]", e);
+  console.error("[PLUGIN ERROR]", e);
+  reply(`❌ Plugin Error\n\n${e.message}`);
         }
       }
     }
