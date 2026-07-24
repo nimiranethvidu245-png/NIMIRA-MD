@@ -115,7 +115,7 @@ async function connectToWA() {
 🔐 Session   : Connected
 🚀 Bot       : Running 24/7
 
-💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.\n\nPREFIX: ${prefix}`;
+💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.\nPREFIX: ${prefix}`;
       await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
         image: { url: `https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg` },
         caption: up
