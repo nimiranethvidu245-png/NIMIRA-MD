@@ -106,7 +106,7 @@ async function connectToWA() {
 💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.
 
 ╰━━━━━━━━━━━━━━━━━━━━╯`);
-    const up =(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
+const up =(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
 
 ✅ Successfully Connected
 
@@ -207,7 +207,16 @@ async function connectToWA() {
 ensureSessionFile();
 
 app.get("/", (req, res) => {
-  res.send("Hey, NIMIRA-MD started✅");
+  res.send("╭━━〔 ⚡ ɴɪᴍɪʀᴀ ᴍᴅ ⚡ 〕━━╮
+
+🔄 Connecting to WhatsApp...
+⏳ Please wait a moment.
+
+📡 Initializing Session...
+🔐 Loading Authentication...
+⚙️ Starting Services...
+
+╰━━━━━━━━━━━━━━━━━━q");
 });
 
 app.listen(port, () => console.log(`Server listening on http://localhost:${port}`));
