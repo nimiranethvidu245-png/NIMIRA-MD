@@ -16,10 +16,10 @@ const path = require('path');
 const qrcode = require('qrcode-terminal');
 
 const config = require('./config');
-const { sms, downloadMediaMessage } = require('./lib/msg');
+const { sms, downloadMediaMessage } = require('./Lib/msg');
 const {
   getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson
-} = require('./lib/functions');
+} = require('./Lib/functions');
 const { File } = require('megajs');
 const { commands, replyHandlers } = require('./command');
 
