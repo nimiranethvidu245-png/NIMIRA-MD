@@ -63,7 +63,16 @@ async function ensureSessionFile() {
 }
 
 async function connectToWA() {
-  console.log("Connecting NIMIRA-MD 🧬...");
+  console.log("╭━━〔 ⚡ ɴɪᴍɪʀᴀ ᴍᴅ ⚡ 〕━━╮
+
+🔄 Connecting to WhatsApp...
+⏳ Please wait a moment.
+
+📡 Initializing Session...
+🔐 Loading Authentication...
+⚙️ Starting Services...
+
+╰━━━━━━━━━━━━━━━━━━╯`;");
   const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '/auth_info_baileys/'));
   const { version } = await fetchLatestBaileysVersion();
 
@@ -85,9 +94,31 @@ async function connectToWA() {
         connectToWA();
       }
     } else if (connection === 'open') {
-      console.log('✅ NIMIRA-MD connected to WhatsApp');
+      const up='╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
 
-      const up = `NIMIRA-MD connected ✅\n\nPREFIX: ${prefix}`;
+✅ Successfully Connected
+
+⚡ Status    : Online
+📡 Server    : Active
+🔐 Session   : Connected
+🚀 Bot       : Running 24/7
+
+💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.
+
+╰━━━━━━━━━━━━━━━━━━━━╯`;');
+
+      const up =  `╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
+
+✅ Successfully Connected
+
+⚡ Status    : Online
+📡 Server    : Active
+🔐 Session   : Connected
+🚀 Bot       : Running 24/7
+
+💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.
+
+╰━━━━━━━━━━━━━━━━━━━━╯`;\n\nPREFIX: ${prefix}`;
       await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
         image: { url: `https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg` },
         caption: up
