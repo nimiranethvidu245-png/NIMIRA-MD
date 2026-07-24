@@ -1,22 +1,6 @@
 {
-  "name": "NIMIRA-MD",
   "version": "1.0.0",
-  "description": "🤖 ɴɪᴍɪʀᴀ ᴍᴅ
-
-⚡ A Powerful & Fast WhatsApp Multi-Device Bot
-
-✨ Features:
-• Auto Status View
-• AI Commands
-• Group Management
-• Media Downloader
-• Sticker Maker
-• Fun & Utility Commands
-• 24/7 Online Support
-
-💎 Fast • Secure • Reliable
-
-Developed with ❤️ by NIMIRA",
+  "description": "🤖 ɴɪᴍɪʀᴀ ᴍᴅ\n⚡ A Powerful & Fast WhatsApp Multi-Device Bot\n✨ Features:\n• Auto Status View\n• AI Commands\n• Group Management\n• Media Downloader\n• Sticker Maker\n• Fun & Utility Commands\n• 24/7 Online Support\n💎 Fast • Secure • Reliable\n\nDeveloped with ❤️ by NIMIRA",
   "main": "index.js",
   "scripts": {
     "start": "pm2 start index.js --deep-monitoring --attach --name NIMIRA-MD",
