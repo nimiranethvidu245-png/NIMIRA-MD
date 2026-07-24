@@ -1,6 +1,6 @@
 {
   "name": "NIMIRA-MD",
-  "description": "Javascript WhatsApp bot made by Danuka Dissanayake",
+  "description": "NIMIRA MD – A Powerful Multi-Device WhatsApp Bot built with Baileys. Fast, Reliable, Secure and Ready for 24/7 Automation.",
   "logo": "https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg",
   "keywords": ["NIMIRA-MD"],
   "success_url": "/",
@@ -24,7 +24,7 @@
 
      "buildpacks": [
         {
-            "url": "https://github.com/heroku/heroku-buildpack-nodejs.git"
+            "url": "https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg"
         }
      ],
   "stack": "heroku-24"
