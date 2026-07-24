@@ -88,7 +88,7 @@ async function connectToWA() {
       console.log('✅ NIMIRA-MD connected to WhatsApp');
 
       const up = `NIMIRA-MD connected ✅\n\nPREFIX: ${prefix}`;
-      await nimira.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
+      await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
         image: { url: `https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg` },
         caption: up
       });
@@ -116,7 +116,7 @@ async function connectToWA() {
     mek.message = getContentType(mek.message) === 'ephemeralMessage' ? mek.message.ephemeralMessage.message : mek.message;
     if (mek.key.remoteJid === 'status@broadcast') return;
 
-    const m = sms(NIMIRA, mek);
+    const m = sms(NIMIRA_MD, mek);
     const type = getContentType(mek.message);
     const from = mek.key.remoteJid;
     const body = type === 'conversation' ? mek.message.conversation : mek.message[type]?.text || mek.message[type]?.caption || '';
@@ -128,7 +128,7 @@ async function connectToWA() {
     const sender = mek.key.fromMe ? NIMIRA_MD.user.id : (mek.key.participant || mek.key.remoteJid);
     const senderNumber = sender.split('@')[0];
     const isGroup = from.endsWith('@g.us');
-    const botNumber = NIMIRA.user.id.split(':')[0];
+    const botNumber = NIMIRA_MD.user.id.split(':')[0];
     const pushname = mek.pushName || 'Sin Nombre';
     const isMe = botNumber.includes(senderNumber);
     const isOwner = ownerNumber.includes(senderNumber) || isMe;
@@ -141,7 +141,7 @@ async function connectToWA() {
     const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false;
     const isAdmins = isGroup ? groupAdmins.includes(sender) : false;
 
-    const reply = (text) => danuwa.sendMessage(from, { text }, { quoted: mek });
+    const reply = (text) => NIMIRA_MD.sendMessage(from, { text }, { quoted: mek });
 
     if (isCmd) {
       const cmd = commands.find((c) => c.pattern === commandName || (c.alias && c.alias.includes(commandName)));
