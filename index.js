@@ -72,7 +72,7 @@ async function connectToWA() {
 🔐 Loading Authentication...
 ⚙️ Starting Services...
 
-╰━━━━━━━━━━━━━━━━━━╯`;");
+╰━━━━━━━━━━━━━━━━━━");
   const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '/auth_info_baileys/'));
   const { version } = await fetchLatestBaileysVersion();
 
@@ -94,7 +94,7 @@ async function connectToWA() {
         connectToWA();
       }
     } else if (connection === 'open') {
-      const up='╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
+      console.log(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
 
 ✅ Successfully Connected
 
@@ -105,9 +105,8 @@ async function connectToWA() {
 
 💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.
 
-╰━━━━━━━━━━━━━━━━━━━━╯`;');
-
-      const up =  `╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
+╰━━━━━━━━━━━━━━━━━━━━╯`);
+    const up =(`╭━━〔 🤖 ɴɪᴍɪʀᴀ ᴍᴅ 〕━━╮
 
 ✅ Successfully Connected
 
@@ -116,9 +115,7 @@ async function connectToWA() {
 🔐 Session   : Connected
 🚀 Bot       : Running 24/7
 
-💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.
-
-╰━━━━━━━━━━━━━━━━━━━━╯`;\n\nPREFIX: ${prefix}`;
+💎 ɴɪᴍɪʀᴀ ᴍᴅ is now ready to receive commands.\n\nPREFIX: ${prefix}`;
       await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
         image: { url: `https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg` },
         caption: up
