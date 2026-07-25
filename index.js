@@ -188,7 +188,7 @@ async function connectToWA() {
 ensureSessionFile();
 
 app.get("/", (req, res) => {
-  res.send("Hey, DANUWA-MD started✅");
+  res.send("Hey, NIMIRA_MD started✅");
 });
 
 app.listen(port, () => console.log(`Server listening on http://localhost:${port}`));
