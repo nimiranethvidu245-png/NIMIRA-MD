@@ -1,22 +1,30 @@
-const fs = require('fs');
-if (fs.existsSync('config.env')) require('dotenv').config({ path: './config.env' });
+const fs = require("fs");
 
-function convertToBool(text, fault = 'true') {
-    return text === fault ? true : false;
+if (fs.existsSync("./config.env")) {
+  require("dotenv").config({ path: "./config.env" });
 }
+
 module.exports = {
-SESSION_ID: process.env.SESSION_ID || "4ItRCBxQ#JgEjsMrIZft9oeXigckDIrklKmiJOHGDMKOdpZ_liZs",
-ALIVE_IMG: process.env.ALIVE_IMG || "https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg",
-ALIVE_MSG: process.env.ALIVE_MSG || "*『 ⚡ ᴘᴏᴡᴇʀꜰᴜʟ ᴡᴀ ⚡ 』
-      
-*👋 Hey I'am  NIMIRA MD 𝙒ᴀ ʙᴏᴛ😾, ᴀ ᴘᴏᴡᴇʀꜰᴜʟ ᴡᴀ  ᴀᴜᴛᴏᴍᴀᴛɪᴏɴ ʙᴏᴛ ᴅᴇꜱɪɢɴᴇᴅ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴡɪᴛʜ ꜰᴀꜱᴛ ᴀɴᴅ ꜱᴍᴀʀᴛ ʀᴇᴘᴏɴꜱ 🫦 , ɪ ᴡᴀꜱ ᴄʀᴇᴀᴛᴇᴅ & ᴅᴇꜱɪɢɴ ニミラ・ネスヴィド🗣️🧚‍♀️*
+  SESSION_ID: process.env.SESSION_ID || "",
+  ALIVE_IMG:
+    process.env.ALIVE_IMG ||
+    "https://raw.githubusercontent.com/nimiranethvidu245-png/NIMIRA-MD/main/Images/IMG_20260719_092754.jpg",
 
+  ALIVE_MSG:
+    process.env.ALIVE_MSG ||
+`*『 ⚡ POWERFUL WA ⚡ 』*
 
+👋 Hey, I'm NIMIRA MD WhatsApp Bot.
 
-> Gʜᴏꜱᴛ ✘ ᴀɪʀ Bᴏᴛ ᴠ1.0.0
-> 🐥_Web Site: Nimira.site_*",
-BOT_OWNER: '94769850638',  // Replace with the owner's phone number
+⚡ Fast • Secure • Reliable
 
+🤖 Multi-Device WhatsApp Bot
+💬 Ready to Receive Commands
+🚀 Running 24/7
 
+Owner: NIMIRA`,
 
+  BOT_OWNER: process.env.BOT_OWNER || "94769850638",
+  PREFIX: process.env.PREFIX || ".",
+  PORT: process.env.PORT || 8000
 };
