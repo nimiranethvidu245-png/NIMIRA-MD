@@ -1,10 +1,13 @@
 const axios = require("axios");
-const { analyzeMarket } = require("../lib/analysis");
-const { calculateRisk } = require("../lib/risk");
+
+const { analyzeMarket } = require("../Lib/anlise");
+
+
 
 
 // Binance Futures candles
-async function getCandles(symbol) {
+
+async function getCandles(symbol){
 
     symbol = symbol.toUpperCase();
 
@@ -17,13 +20,14 @@ async function getCandles(symbol) {
     await axios.get(url);
 
 
+
     return res.data.map(c => ({
 
-        open: Number(c[1]),
-        high: Number(c[2]),
-        low: Number(c[3]),
-        close: Number(c[4]),
-        volume: Number(c[5])
+        open:Number(c[1]),
+        high:Number(c[2]),
+        low:Number(c[3]),
+        close:Number(c[4]),
+        volume:Number(c[5])
 
     }));
 
@@ -32,144 +36,280 @@ async function getCandles(symbol) {
 
 
 
-async function signalCommand(sock, msg, args) {
+// Simple Risk Calculator
+
+function calculateRisk(price, signal){
 
 
-    try {
+    let entry = price;
 
-
-        if(!args[0]){
-
-            return sock.sendMessage(
-                msg.key.remoteJid,
-                {
-                    text:
-                    "❌ Coin එක දෙන්න\n\nExample:\n.signal BTCUSDT"
-                }
-            );
-
-        }
+    let stopLoss;
+    let takeProfit1;
+    let takeProfit2;
 
 
 
-        const symbol =
-        args[0].toUpperCase();
+    if(signal === "BUY"){
+
+
+        stopLoss =
+        price * 0.995;
+
+
+        takeProfit1 =
+        price * 1.01;
+
+
+        takeProfit2 =
+        price * 1.02;
+
+
+    }
 
 
 
-        const candles =
-        await getCandles(symbol);
+    else if(signal === "SELL"){
+
+
+        stopLoss =
+        price * 1.005;
+
+
+        takeProfit1 =
+        price * 0.99;
+
+
+        takeProfit2 =
+        price * 0.98;
+
+
+    }
+
+
+    else{
+
+
+        stopLoss = "-";
+
+        takeProfit1 = "-";
+
+        takeProfit2 = "-";
+
+    }
 
 
 
-        const result =
-        analyzeMarket(candles);
+    return {
+
+        entry:entry.toFixed(4),
+
+        stopLoss:
+        typeof stopLoss === "number"
+        ?
+        stopLoss.toFixed(4)
+        :
+        stopLoss,
+
+
+        takeProfit1:
+        typeof takeProfit1 === "number"
+        ?
+        takeProfit1.toFixed(4)
+        :
+        takeProfit1,
+
+
+        takeProfit2:
+        typeof takeProfit2 === "number"
+        ?
+        takeProfit2.toFixed(4)
+        :
+        takeProfit2
+
+    };
+
+}
 
 
 
-        const price =
-        candles.at(-1).close;
 
 
+async function signalCommand(sock,msg,args){
 
-        const risk =
-        calculateRisk(
-            price,
-            result.signal
+
+try{
+
+
+    if(!args[0]){
+
+
+        return sock.sendMessage(
+            msg.key.remoteJid,
+            {
+                text:
+                "❌ Coin එක දෙන්න\n\nExample:\n.signal BTCUSDT"
+            }
         );
 
+    }
 
 
 
-        const text =
+
+    const symbol =
+    args[0].toUpperCase();
+
+
+
+    const candles =
+    await getCandles(symbol);
+
+
+
+    const result =
+    analyzeMarket(candles);
+
+
+
+    const price =
+    candles.at(-1).close;
+
+
+
+
+    const risk =
+    calculateRisk(
+        price,
+        result.signal
+    );
+
+
+
+
+
+const text =
 
 `🤖 NIMIRA MD FUTURES AI
+
 
 PAIR:
 ${symbol}
 
+
 TIMEFRAME:
 15M
 
+
 SIGNAL:
 ${result.signal}
+
 
 CONFIDENCE:
 ${result.confidence}
 
 
+
 💰 TRADE PLAN
+
 
 ENTRY:
 ${risk.entry}
 
+
 STOP LOSS:
 ${risk.stopLoss}
 
+
 TAKE PROFIT 1:
 ${risk.takeProfit1}
+
 
 TAKE PROFIT 2:
 ${risk.takeProfit2}
 
 
 
+
 📊 INDICATORS
 
-EMA:
+
+TREND:
 ${result.indicators.trend}
+
 
 RSI:
 ${result.indicators.RSI}
 
 
+
+
 🧠 ICT
+
 
 Liquidity:
 ${result.ict.liquidity}
 
+
 BOS:
 ${result.ict.BOS}
+
 
 FVG:
 ${result.ict.FVG.type}
 
 
 
+
 💎 SMC
+
 
 Structure:
 ${result.smc.structure}
+
 
 Order Block:
 ${result.smc.orderBlock.type}
 
 
 
+
 📐 FIBONACCI
+
 
 Zone:
 ${result.fibonacci.zone}
 
 
 
+
 📈 SNR
+
 
 Zone:
 ${result.snr.zone.zone}
 
 
 
-📊 VOLUME PROFILE
 
+📊 VOLUME
+
+
+Signal:
 ${result.volume.signal}
+
+
+Pressure:
+${result.volume.pressure?.pressure}
+
 
 
 
 🌊 EWC
 
+
 Bias:
 ${result.ewc.marketBias}
+
 
 
 
@@ -177,33 +317,43 @@ ${result.ewc.marketBias}
 
 
 
-        await sock.sendMessage(
-            msg.key.remoteJid,
-            {
-                text
-            }
-        );
 
-
+await sock.sendMessage(
+    msg.key.remoteJid,
+    {
+        text
     }
-    catch(err){
+);
 
 
-        await sock.sendMessage(
-            msg.key.remoteJid,
-            {
-                text:
-                "❌ Invalid coin or Binance Futures error"
-            }
-        );
+
+}
+
+catch(err){
 
 
+console.log(err);
+
+
+await sock.sendMessage(
+    msg.key.remoteJid,
+    {
+        text:
+        "❌ Signal Error - Check Coin Symbol"
     }
+);
+
+
+}
+
+
 
 }
 
 
 
 module.exports = {
+
     signalCommand
-};
+
+};2
