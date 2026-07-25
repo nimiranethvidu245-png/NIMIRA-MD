@@ -1,116 +1,117 @@
-function calculateFibonacci(high, low) {
+// ===============================
+// Fibonacci Module
+// ===============================
 
-  const diff = high - low;
+// Retracement Levels
 
-  return {
+function getFibonacciLevels(high, low) {
 
-    level_0: high,
+    const range = high - low;
 
-    level_236: high - (diff * 0.236),
+    return {
 
-    level_382: high - (diff * 0.382),
+        high,
 
-    level_500: high - (diff * 0.500),
+        low,
 
-    level_618: high - (diff * 0.618),
+        fib0: high,
 
-    level_786: high - (diff * 0.786),
+        fib236: high - (range * 0.236),
 
-    level_100: low
+        fib382: high - (range * 0.382),
 
-  };
+        fib50: high - (range * 0.50),
 
-}
+        fib618: high - (range * 0.618),
 
+        fib705: high - (range * 0.705),
 
-// Find recent swing high & low
-function getSwing(candles, lookback = 50) {
+        fib786: high - (range * 0.786),
 
-  const recent =
-    candles.slice(-lookback);
+        fib100: low
 
-
-  const highs =
-    recent.map(c => Number(c.high));
-
-  const lows =
-    recent.map(c => Number(c.low));
-
-
-  return {
-
-    high: Math.max(...highs),
-
-    low: Math.min(...lows)
-
-  };
+    };
 
 }
 
+// ===============================
+// Fibonacci Extension
+// ===============================
 
-// Fibonacci zone check
-function fibonacciSignal(candles) {
+function getExtension(high, low) {
 
-  const swing =
-    getSwing(candles);
+    const range = high - low;
 
+    return {
 
-  const fib =
-    calculateFibonacci(
-      swing.high,
-      swing.low
-    );
+        tp1: high + (range * 0.272),
 
+        tp2: high + (range * 0.618),
 
-  const price =
-    Number(candles.at(-1).close);
+        tp3: high + (range * 1.0),
 
+        tp4: high + (range * 1.618)
 
-  let zone = "NONE";
+    };
 
+}
+// ===============================
+// Auto Swing High / Low
+// ===============================
 
-  if(
-    price <= fib.level_618 &&
-    price >= fib.level_500
-  ){
+function getAutoFibonacci(candles) {
 
-    zone = "GOLDEN_ZONE";
+    const highs = candles.map(c => Number(c.high));
+    const lows = candles.map(c => Number(c.low));
 
-  }
+    const high = Math.max(...highs);
+    const low = Math.min(...lows);
 
-
-  if(
-    price <= fib.level_786 &&
-    price >= fib.level_618
-  ){
-
-    zone = "DEEP_RETRACEMENT";
-
-  }
-
-
-  return {
-
-    swing,
-
-    fib,
-
-    currentPrice: price,
-
-    zone
-
-  };
+    return getFibonacciLevels(high, low);
 
 }
 
+// ===============================
+// Trade Setup
+// ===============================
 
+function getTradeSetup(high, low) {
+
+    const fib = getFibonacciLevels(high, low);
+    const ext = getExtension(high, low);
+
+    return {
+
+        entry: fib.fib618,
+
+        confirmation: fib.fib705,
+
+        stopLoss: fib.fib786,
+
+        takeProfit1: ext.tp1,
+
+        takeProfit2: ext.tp2,
+
+        takeProfit3: ext.tp3,
+
+        takeProfit4: ext.tp4
+
+    };
+
+}
+
+// ===============================
+// Exports
+// ===============================
 
 module.exports = {
 
-  calculateFibonacci,
+    getFibonacciLevels,
 
-  getSwing,
+    getExtension,
 
-  fibonacciSignal
+    getAutoFibonacci,
+
+    getTradeSetup
 
 };
