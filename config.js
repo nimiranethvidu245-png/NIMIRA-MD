@@ -5,7 +5,7 @@ if (fs.existsSync("./config.env")) {
 }
 
 module.exports = {
-  SESSION_ID: process.env.SESSION_ID || "",
+  SESSION_ID: process.env.SESSION_ID || "FV9nmBYR#ns4It_259sIT-u6oeUbUUVZmha_odNOeVyOc8EkKP3U",
   ALIVE_IMG:
     process.env.ALIVE_IMG ||
     "https://raw.githubusercontent.com/nimiranethvidu245-png/NIMIRA-MD/main/Images/IMG_20260719_092754.jpg",
