@@ -1,52 +1,39 @@
 const axios = require("axios");
 
-const BINANCE_API =
-    "https://api.binance.com/api/v3/klines";
+const BINANCE =
+    "https://api.binance.com/api/v3";
+
 
 // ===============================
-// Get Market Candles
+// Get All USDT Coins
 // ===============================
 
-async function getCandles(
-    symbol = "BTCUSDT",
-    interval = "15m",
-    limit = 250
-) {
+async function getAllCoins() {
 
     try {
 
         const { data } = await axios.get(
-            BINANCE_API,
-            {
-                params: {
-                    symbol,
-                    interval,
-                    limit
-                }
-            }
+            `${BINANCE}/exchangeInfo`
         );
 
-        return data.map(candle => ({
 
-            openTime: candle[0],
+        return data.symbols
+            .filter(
+                coin =>
+                    coin.quoteAsset === "USDT" &&
+                    coin.status === "TRADING"
+            )
+            .map(
+                coin => coin.symbol
+            );
 
-            open: Number(candle[1]),
-
-            high: Number(candle[2]),
-
-            low: Number(candle[3]),
-
-            close: Number(candle[4]),
-
-            volume: Number(candle[5]),
-
-            closeTime: candle[6]
-
-        }));
 
     } catch (err) {
 
-        console.log("Scanner Error:", err.message);
+        console.log(
+            "Coin Error:",
+            err.message
+        );
 
         return [];
 
@@ -54,131 +41,245 @@ async function getCandles(
 
 }
 
+
+
 // ===============================
-// Current Price
+// Get Candles
 // ===============================
 
-async function getPrice(symbol = "BTCUSDT") {
+async function getCandles(
+    symbol,
+    interval = "15m",
+    limit = 250
+) {
 
     try {
 
+
         const { data } = await axios.get(
-            "https://api.binance.com/api/v3/ticker/price",
+            `${BINANCE}/klines`,
             {
-                params: {
-                    symbol
+                params:{
+                    symbol,
+                    interval,
+                    limit
                 }
             }
         );
 
-        return Number(data.price);
+
+        return data.map(
+            candle => ({
+
+                open:Number(candle[1]),
+
+                high:Number(candle[2]),
+
+                low:Number(candle[3]),
+
+                close:Number(candle[4]),
+
+                volume:Number(candle[5])
+
+            })
+        );
+
 
     } catch {
 
-        return null;
+        return [];
 
     }
 
 }
+
+
+
+
 // ===============================
-// Trend Scanner
+// Analyze Coin
 // ===============================
 
-async function scanMarket(symbol = "BTCUSDT") {
+async function scanMarket(symbol) {
 
-    const candles = await getCandles(symbol);
 
-    if (!candles.length) {
+    const candles =
+        await getCandles(symbol);
+
+
+    if(!candles.length)
         return null;
-    }
 
-    const last = candles[candles.length - 1];
-    const first = candles[0];
+
+
+    const first =
+        candles[0];
+
+
+    const last =
+        candles[candles.length-1];
+
+
 
     const change =
-        ((last.close - first.close) / first.close) * 100;
+        ((last.close-first.close)
+        /first.close)*100;
 
-    let trend = "SIDEWAYS";
 
-    if (change > 1)
-        trend = "BULLISH";
 
-    if (change < -1)
-        trend = "BEARISH";
+    let trend="SIDEWAYS";
+
+    let signal="WAIT";
+
+
+
+    if(change > 1){
+
+        trend="BULLISH";
+
+        signal="BUY";
+
+    }
+
+
+
+    if(change < -1){
+
+        trend="BEARISH";
+
+        signal="SELL";
+
+    }
+
+
 
     return {
 
         symbol,
 
-        trend,
-
-        price: last.close,
-
-        high: last.high,
-
-        low: last.low,
-
-        volume: last.volume,
-
-        change: Number(change.toFixed(2))
-
-    };
-
-}
-
-// ===============================
-// Market Summary
-// ===============================
-
-async function getMarketSummary(symbol = "BTCUSDT") {
-
-    const market = await scanMarket(symbol);
-
-    if (!market)
-        return null;
-
-    let signal = "WAIT";
-
-    if (market.trend === "BULLISH")
-        signal = "BUY";
-
-    if (market.trend === "BEARISH")
-        signal = "SELL";
-
-    return {
-
-        symbol: market.symbol,
-
         signal,
 
-        trend: market.trend,
+        trend,
 
-        currentPrice: market.price,
+        price:last.close,
 
-        dailyHigh: market.high,
+        change:Number(
+            change.toFixed(2)
+        ),
 
-        dailyLow: market.low,
+        high:last.high,
 
-        volume: market.volume,
+        low:last.low,
 
-        change: market.change
+        volume:last.volume
 
     };
 
+
 }
 
+
+
+
+
 // ===============================
-// Exports
+// Scan ALL Coins
 // ===============================
+
+async function scanAllCoins(){
+
+
+    console.log(
+        "Starting Full Market Scan..."
+    );
+
+
+    const coins =
+        await getAllCoins();
+
+
+
+    let results=[];
+
+
+
+    for(const coin of coins){
+
+
+        const analysis =
+            await scanMarket(coin);
+
+
+
+        if(analysis){
+
+
+            results.push(
+                analysis
+            );
+
+
+            console.log(
+                `${coin} | ${analysis.signal} | ${analysis.change}%`
+            );
+
+
+        }
+
+
+        // API limit protection
+        await new Promise(
+            r=>setTimeout(r,200)
+        );
+
+
+    }
+
+
+
+    return results;
+
+
+}
+
+
+
+
+// ===============================
+// Best Signals Only
+// ===============================
+
+async function getSignals(){
+
+
+    const market =
+        await scanAllCoins();
+
+
+
+    return market.filter(
+        coin =>
+            coin.signal !== "WAIT"
+    );
+
+
+}
+
+
+
 
 module.exports = {
 
-    getCandles,
 
-    getPrice,
+    getAllCoins,
+
+    getCandles,
 
     scanMarket,
 
-    getMarketSummary
+    scanAllCoins,
+
+    getSignals
+
 
 };
