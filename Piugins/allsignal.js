@@ -1,122 +1,66 @@
 // =======================================
-// NIMIRA MD ALL COIN SIGNAL COMMAND
+// NIMIRA MD ALL SIGNAL COMMAND
 // =======================================
 
-
+const { cmd } = require("../command");
 const { getSignals } = require("../Lib/scanner");
 
 
 
-
-// ===============================
 // Risk Calculator
-// ===============================
 
 function calculateRisk(price, signal){
 
-
-    let entry = price;
-
     let stopLoss;
-    let takeProfit1;
-    let takeProfit2;
-
+    let tp1;
+    let tp2;
 
 
     if(signal === "BUY"){
 
-
-        stopLoss =
-        price * 0.995;
-
-
-        takeProfit1 =
-        price * 1.01;
-
-
-        takeProfit2 =
-        price * 1.02;
-
+        stopLoss = price * 0.995;
+        tp1 = price * 1.01;
+        tp2 = price * 1.02;
 
     }
-
 
     else if(signal === "SELL"){
 
-
-        stopLoss =
-        price * 1.005;
-
-
-        takeProfit1 =
-        price * 0.99;
-
-
-        takeProfit2 =
-        price * 0.98;
-
+        stopLoss = price * 1.005;
+        tp1 = price * 0.99;
+        tp2 = price * 0.98;
 
     }
 
-
-    else{
-
+    else {
 
         return {
-
             entry:"-",
             stopLoss:"-",
-            takeProfit1:"-",
-            takeProfit2:"-",
+            tp1:"-",
+            tp2:"-",
             rr:"-"
-
         };
 
     }
 
 
-
-
-    const risk =
-    Math.abs(
-        entry - stopLoss
-    );
-
-
-    const reward =
-    Math.abs(
-        takeProfit1 - entry
-    );
-
-
-
-
     return {
 
-
-        entry:
-        entry.toFixed(4),
-
+        entry: price.toFixed(4),
 
         stopLoss:
         stopLoss.toFixed(4),
 
+        tp1:
+        tp1.toFixed(4),
 
-        takeProfit1:
-        takeProfit1.toFixed(4),
+        tp2:
+        tp2.toFixed(4),
 
-
-        takeProfit2:
-        takeProfit2.toFixed(4),
-
-
-
-        rr:
-        (reward / risk)
-        .toFixed(2)
+        rr:"1:2"
 
     };
-
 
 }
 
@@ -124,36 +68,45 @@ function calculateRisk(price, signal){
 
 
 
+cmd(
+{
+
+    pattern:"signalall",
+
+    alias:[
+        "scanall",
+        "allsignal"
+    ],
+
+    desc:
+    "Scan all USDT coins",
+
+    category:
+    "trading",
+
+    react:"🚀"
+
+},
 
 
-// ===============================
-// ALL SIGNAL COMMAND
-// ===============================
+async (
+    NIMIRA_MD,
+    mek,
+    m,
+    {
+        from,
+        reply
+    }
 
-async function allSignalCommand(
-    sock,
-    msg
-){
-
+)=>{
 
 
 try{
 
 
-    await sock.sendMessage(
-
-        msg.key.remoteJid,
-
-        {
-
-            text:
-            "🚀 NIMIRA MD AI SCANNER\n\n⏳ Scanning All USDT Coins..."
-
-        }
-
+    await reply(
+        "🚀 NIMIRA MD AI SCANNER\n\n⏳ Scanning market..."
     );
-
-
 
 
 
@@ -163,147 +116,90 @@ try{
 
 
 
-
     if(!signals.length){
 
-
-        return sock.sendMessage(
-
-            msg.key.remoteJid,
-
-            {
-
-                text:
-                "❌ No strong signals found"
-
-            }
-
+        return reply(
+            "❌ No strong signals found"
         );
-
 
     }
 
 
 
 
-
-
     let text =
+`
+🤖 NIMIRA MD FUTURES AI
 
-`🤖 NIMIRA MD FUTURES AI
-
-🔥 TOP MARKET SIGNALS
+🔥 TOP SIGNALS
 
 `;
 
 
 
-
-
-
     signals
-
     .slice(0,10)
-
     .forEach(
-
     (coin,index)=>{
 
 
-
         const risk =
-
         calculateRisk(
-
             coin.price,
-
             coin.signal
-
         );
-
-
 
 
 
         text +=
 
-
 `
 ━━━━━━━━━━━━━━
 
-${index + 1}. ${coin.symbol}
-
+${index+1}. ${coin.symbol}
 
 📌 SIGNAL:
 ${coin.signal}
-
 
 🔥 CONFIDENCE:
 ${coin.confidence}
 
 
-
 💰 TRADE PLAN
-
 
 ENTRY:
 ${risk.entry}
 
-
 STOP LOSS:
 ${risk.stopLoss}
 
-
 TAKE PROFIT 1:
-${risk.takeProfit1}
-
+${risk.tp1}
 
 TAKE PROFIT 2:
-${risk.takeProfit2}
+${risk.tp2}
 
-
-RISK / REWARD:
-1:${risk.rr}
-
-
+RISK:
+${risk.rr}
 
 
 📊 TREND:
 ${coin.trend}
 
-
-📈 RSI:
-${coin.RSI}
-
-
-
 💎 SMC:
 ${coin.SMC}
-
-
 
 🧠 ICT:
 ${coin.ICT}
 
-
-
-📐 FIBONACCI:
+📐 FIB:
 ${coin.Fibonacci}
 
-
-
-📊 VOLUME:
+📈 VOLUME:
 ${coin.Volume}
-
-
-PRESSURE:
-${coin.VolumePressure}
-
-
 
 🌊 EWC:
 ${coin.EWC}
-
 
 `;
 
@@ -313,12 +209,7 @@ ${coin.EWC}
 
 
 
-
-
-
-
     text +=
-
 `
 ━━━━━━━━━━━━━━
 
@@ -327,66 +218,21 @@ ${coin.EWC}
 
 
 
-
-
-
-
-    await sock.sendMessage(
-
-        msg.key.remoteJid,
-
-        {
-
-            text
-
-        }
-
-    );
-
-
+    await reply(text);
 
 
 
 }
-
-
 
 catch(err){
 
-
     console.log(err);
 
-
-
-    await sock.sendMessage(
-
-        msg.key.remoteJid,
-
-        {
-
-            text:
-            "❌ All Signal Scanner Error"
-
-        }
-
+    await reply(
+        "❌ All Signal Scanner Error"
     );
 
-
 }
 
 
-
-}
-
-
-
-
-
-
-module.exports = {
-
-
-    allSignalCommand
-
-
-};
+});
