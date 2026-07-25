@@ -264,9 +264,6 @@ function getMarketStrength(rsi, atr) {
 // Main Indicator Engine
 // ===============================
 
-function getIndicators(candles) {
-
-    const closes = candles.map(c => Number(c.close));
 
     const ema20 = calculateEMA(closes, 20);
     const ema50 = calculateEMA(closes, 50);
@@ -277,21 +274,20 @@ function getIndicators(candles) {
     const bb = calculateBollinger(closes);
     const atr = calculateATR(candles);
     const vwap = calculateVWAP(candles);
-    const volumeProfile = calculateVolumeProfile(candles);
+    const volumeProfile = cafunction getIndicators(candles) {
 
-    const indicators = {
+    if (!candles || candles.length < 200) {
+        throw new Error("Not enough candle data.");
+    }
 
-        EMA20: ema20.at(-1),
-        EMA50: ema50.at(-1),
-        EMA200: ema200.at(-1),
+    function getIndicators(candles) {
 
-        RSI: rsi.at(-1),
+    if (!candles || candles.length < 200) {
+        throw new Error("Not enough candle data.");
+    }
 
-        MACD: macd.at(-1),
+    const closes = candles.map(c => Number(c.close));lculateVolumeProfile(candles);
 
-        Bollinger: bb.at(-1),
-
-        ATR: atr.at(-1),
 
         VWAP: vwap,
 
@@ -324,7 +320,27 @@ function getIndicators(candles) {
             indicators.ATR
         );
 
-    return indicators;
+    return const indicators = {
+
+    EMA20: ema20.length ? ema20[ema20.length - 1] : null,
+
+    EMA50: ema50.length ? ema50[ema50.length - 1] : null,
+
+    EMA200: ema200.length ? ema200[ema200.length - 1] : null,
+
+    RSI: rsi.length ? rsi[rsi.length - 1] : null,
+
+    MACD: macd.length ? macd[macd.length - 1] : null,
+
+    Bollinger: bb.length ? bb[bb.length - 1] : null,
+
+    ATR: atr.length ? atr[atr.length - 1] : null,
+
+    VWAP: vwap,
+
+    VolumeProfile: volumeProfile
+
+};indicators;
 
 }
 
