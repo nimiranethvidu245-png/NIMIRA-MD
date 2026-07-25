@@ -1,205 +1,289 @@
-// ICT Concepts
-// Liquidity Sweep
-// BOS
-// CHoCH
-// FVG (Fair Value Gap)
+// ===============================
+// ICT MODULE
+// ===============================
 
+// Kill Zone
 
-function detectLiquiditySweep(candles) {
+function getKillZone(date = new Date()) {
 
-  const last = candles.at(-1);
-  const previous = candles.at(-2);
+    const utcHour = date.getUTCHours();
+    const utcMinute = date.getUTCMinutes();
 
+    const minutes = utcHour * 60 + utcMinute;
 
-  if (
-    Number(last.low) < Number(previous.low) &&
-    Number(last.close) > Number(previous.low)
-  ) {
+    // Asian Session
+    if (minutes >= 0 && minutes <= 300) {
+        return {
+            active: true,
+            session: "ASIAN"
+        };
+    }
 
-    return "BULLISH_LIQUIDITY_SWEEP";
+    // London Kill Zone
+    if (minutes >= 420 && minutes <= 600) {
+        return {
+            active: true,
+            session: "LONDON"
+        };
+    }
 
-  }
+    // New York Kill Zone
+    if (minutes >= 750 && minutes <= 930) {
+        return {
+            active: true,
+            session: "NEW YORK"
+        };
+    }
 
-
-  if (
-    Number(last.high) > Number(previous.high) &&
-    Number(last.close) < Number(previous.high)
-  ) {
-
-    return "BEARISH_LIQUIDITY_SWEEP";
-
-  }
-
-
-  return "NO_SWEEP";
-
+    return {
+        active: false,
+        session: "NONE"
+    };
 }
 
+// ===============================
+// Fair Value Gap (FVG)
+// ===============================
 
+function detectFVG(candles) {
+
+    const gaps = [];
+
+    for (let i = 2; i < candles.length; i++) {
+
+        const c1 = candles[i - 2];
+        const c2 = candles[i - 1];
+        const c3 = candles[i];
+
+        // Bullish FVG
+        if (Number(c1.high) < Number(c3.low)) {
+
+            gaps.push({
+                type: "BULLISH",
+                high: Number(c3.low),
+                low: Number(c1.high)
+            });
+
+        }
+
+        // Bearish FVG
+        if (Number(c1.low) > Number(c3.high)) {
+
+            gaps.push({
+                type: "BEARISH",
+                high: Number(c1.low),
+                low: Number(c3.high)
+            });
+
+        }
+
+    }
+
+    return gaps;
+
+}
+// ===============================
+// Break Of Structure (BOS)
+// ===============================
 
 function detectBOS(candles) {
 
-  const last = candles.at(-1);
+    if (candles.length < 3)
+        return null;
 
-  const highs =
-    candles.map(c => Number(c.high));
+    const prevHigh = Number(candles[candles.length - 2].high);
+    const prevLow = Number(candles[candles.length - 2].low);
 
-  const lows =
-    candles.map(c => Number(c.low));
+    const lastClose = Number(candles[candles.length - 1].close);
 
+    if (lastClose > prevHigh) {
 
-  const previousHigh =
-    Math.max(...highs.slice(0,-1));
+        return {
+            type: "BULLISH_BOS",
+            level: prevHigh
+        };
 
+    }
 
-  const previousLow =
-    Math.min(...lows.slice(0,-1));
+    if (lastClose < prevLow) {
 
+        return {
+            type: "BEARISH_BOS",
+            level: prevLow
+        };
 
+    }
 
-  if(
-    Number(last.close) > previousHigh
-  ){
-
-    return "BULLISH_BOS";
-
-  }
-
-
-  if(
-    Number(last.close) < previousLow
-  ){
-
-    return "BEARISH_BOS";
-
-  }
-
-
-  return "NO_BOS";
+    return null;
 
 }
 
+// ===============================
+// Change Of Character (CHOCH)
+// ===============================
 
+function detectCHOCH(candles) {
 
+    if (candles.length < 5)
+        return null;
 
-function detectCHoCH(candles) {
+    const current = Number(candles[candles.length - 1].close);
+    const previous = Number(candles[candles.length - 2].close);
 
-  const bos =
-    detectBOS(candles);
+    if (current > previous) {
 
+        return {
+            trend: "BULLISH",
+            signal: "CHOCH"
+        };
 
-  if(bos === "BULLISH_BOS") {
+    }
 
-    return "BULLISH_CHOCH";
+    if (current < previous) {
 
-  }
+        return {
+            trend: "BEARISH",
+            signal: "CHOCH"
+        };
 
+    }
 
-  if(bos === "BEARISH_BOS") {
-
-    return "BEARISH_CHOCH";
-
-  }
-
-
-  return "NO_CHOCH";
+    return null;
 
 }
 
+// ===============================
+// Liquidity Sweep
+// ===============================
 
+function detectLiquiditySweep(candles) {
 
+    if (candles.length < 3)
+        return null;
 
-// Fair Value Gap
-function detectFVG(candles) {
+    const prev = candles[candles.length - 2];
+    const last = candles[candles.length - 1];
 
+    if (
+        Number(last.high) > Number(prev.high) &&
+        Number(last.close) < Number(prev.high)
+    ) {
 
-  const c1 = candles.at(-3);
-  const c3 = candles.at(-1);
+        return {
+            type: "BUY_SIDE_LIQUIDITY"
+        };
 
+    }
 
+    if (
+        Number(last.low) < Number(prev.low) &&
+        Number(last.close) > Number(prev.low)
+    ) {
 
-  if(
-    Number(c1.high) <
-    Number(c3.low)
-  ){
+        return {
+            type: "SELL_SIDE_LIQUIDITY"
+        };
+
+    }
+
+    return null;
+
+}
+// ===============================
+// Order Block
+// ===============================
+
+function detectOrderBlock(candles) {
+
+    if (candles.length < 5)
+        return null;
+
+    const candle = candles[candles.length - 2];
+
+    if (Number(candle.close) > Number(candle.open)) {
+
+        return {
+            type: "BULLISH",
+            high: Number(candle.high),
+            low: Number(candle.low)
+        };
+
+    }
 
     return {
 
-      type:"BULLISH_FVG",
-
-      zone:{
-        low:c1.high,
-        high:c3.low
-      }
+        type: "BEARISH",
+        high: Number(candle.high),
+        low: Number(candle.low)
 
     };
 
-  }
+}
 
+// ===============================
+// Premium / Discount Zone
+// ===============================
 
+function getPremiumDiscount(high, low, price) {
 
-  if(
-    Number(c1.low) >
-    Number(c3.high)
-  ){
+    const equilibrium = (high + low) / 2;
+
+    if (price > equilibrium) {
+
+        return "PREMIUM";
+
+    }
+
+    if (price < equilibrium) {
+
+        return "DISCOUNT";
+
+    }
+
+    return "EQUILIBRIUM";
+
+}
+
+// ===============================
+// Optimal Trade Entry (OTE)
+// ===============================
+
+function calculateOTE(high, low) {
+
+    const range = high - low;
 
     return {
 
-      type:"BEARISH_FVG",
+        fib62: high - (range * 0.62),
 
-      zone:{
-        low:c3.high,
-        high:c1.low
-      }
+        fib70: high - (range * 0.705),
+
+        fib79: high - (range * 0.79)
 
     };
 
-  }
-
-
-  return {
-
-    type:"NO_FVG"
-
-  };
-
 }
 
-
-
-
-function ictAnalysis(candles){
-
-  return {
-
-    liquidity:
-      detectLiquiditySweep(candles),
-
-    BOS:
-      detectBOS(candles),
-
-    CHoCH:
-      detectCHoCH(candles),
-
-    FVG:
-      detectFVG(candles)
-
-  };
-
-}
-
-
+// ===============================
+// Exports
+// ===============================
 
 module.exports = {
 
-  ictAnalysis,
+    getKillZone,
 
-  detectLiquiditySweep,
+    detectFVG,
 
-  detectBOS,
+    detectBOS,
 
-  detectCHoCH,
+    detectCHOCH,
 
-  detectFVG
+    detectLiquiditySweep,
+
+    detectOrderBlock,
+
+    getPremiumDiscount,
+
+    calculateOTE
 
 };
