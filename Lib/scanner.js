@@ -1,39 +1,59 @@
+// =======================================
+// NIMIRA MD AI MARKET SCANNER
+// =======================================
+
+
 const axios = require("axios");
 
+const { analyzeMarket } = require("./anlise");
+
+
 const BINANCE =
-    "https://api.binance.com/api/v3";
+"https://api.binance.com/api/v3";
+
+
 
 
 // ===============================
 // Get All USDT Coins
 // ===============================
 
-async function getAllCoins() {
+async function getAllCoins(){
 
-    try {
 
-        const { data } = await axios.get(
+    try{
+
+
+        const {data} =
+        await axios.get(
             `${BINANCE}/exchangeInfo`
         );
 
 
+
         return data.symbols
-            .filter(
-                coin =>
-                    coin.quoteAsset === "USDT" &&
-                    coin.status === "TRADING"
-            )
-            .map(
-                coin => coin.symbol
-            );
+
+        .filter(
+            coin =>
+            coin.quoteAsset === "USDT" &&
+            coin.status === "TRADING"
+        )
+
+        .map(
+            coin =>
+            coin.symbol
+        );
 
 
-    } catch (err) {
+    }
+    catch(err){
+
 
         console.log(
             "Coin Error:",
             err.message
         );
+
 
         return [];
 
@@ -43,20 +63,26 @@ async function getAllCoins() {
 
 
 
+
+
+
+
 // ===============================
 // Get Candles
 // ===============================
 
 async function getCandles(
     symbol,
-    interval = "15m",
-    limit = 250
-) {
-
-    try {
+    interval="15m",
+    limit=250
+){
 
 
-        const { data } = await axios.get(
+    try{
+
+
+        const {data} =
+        await axios.get(
             `${BINANCE}/klines`,
             {
                 params:{
@@ -66,6 +92,7 @@ async function getCandles(
                 }
             }
         );
+
 
 
         return data.map(
@@ -85,7 +112,8 @@ async function getCandles(
         );
 
 
-    } catch {
+    }
+    catch(err){
 
         return [];
 
@@ -96,85 +124,118 @@ async function getCandles(
 
 
 
+
+
+
+
 // ===============================
-// Analyze Coin
+// Analyze Single Coin
 // ===============================
 
-async function scanMarket(symbol) {
+async function scanMarket(symbol){
 
 
-    const candles =
+    try{
+
+
+        const candles =
         await getCandles(symbol);
 
 
-    if(!candles.length)
+
+        if(!candles.length)
+            return null;
+
+
+
+
+        const result =
+        analyzeMarket(candles);
+
+
+
+        const last =
+        candles.at(-1);
+
+
+
+
+
+        return {
+
+
+            symbol,
+
+
+            signal:
+            result.signal,
+
+
+
+            confidence:
+            result.confidence,
+
+
+
+            score:
+            result.score,
+
+
+
+            price:
+            last.close,
+
+
+
+            trend:
+            result.indicators.trend,
+
+
+
+            RSI:
+            result.indicators.RSI,
+
+
+
+            SMC:
+            result.smc.orderBlock.type,
+
+
+
+            ICT:
+            result.ict.liquidity,
+
+
+
+            Fibonacci:
+            result.fibonacci.zone,
+
+
+
+            Volume:
+            result.volume.signal,
+
+
+
+            VolumePressure:
+            result.volume.pressure?.pressure,
+
+
+
+            EWC:
+            result.ewc.marketBias
+
+
+        };
+
+
+    }
+    catch(err){
+
+
         return null;
 
-
-
-    const first =
-        candles[0];
-
-
-    const last =
-        candles[candles.length-1];
-
-
-
-    const change =
-        ((last.close-first.close)
-        /first.close)*100;
-
-
-
-    let trend="SIDEWAYS";
-
-    let signal="WAIT";
-
-
-
-    if(change > 1){
-
-        trend="BULLISH";
-
-        signal="BUY";
-
     }
-
-
-
-    if(change < -1){
-
-        trend="BEARISH";
-
-        signal="SELL";
-
-    }
-
-
-
-    return {
-
-        symbol,
-
-        signal,
-
-        trend,
-
-        price:last.close,
-
-        change:Number(
-            change.toFixed(2)
-        ),
-
-        high:last.high,
-
-        low:last.low,
-
-        volume:last.volume
-
-    };
-
 
 }
 
@@ -182,20 +243,24 @@ async function scanMarket(symbol) {
 
 
 
+
+
+
 // ===============================
-// Scan ALL Coins
+// Scan All Coins
 // ===============================
 
 async function scanAllCoins(){
 
 
     console.log(
-        "Starting Full Market Scan..."
+        "🚀 NIMIRA MD FULL MARKET SCAN STARTED"
     );
 
 
+
     const coins =
-        await getAllCoins();
+    await getAllCoins();
 
 
 
@@ -203,11 +268,13 @@ async function scanAllCoins(){
 
 
 
-    for(const coin of coins){
+    for(
+        const coin of coins
+    ){
 
 
         const analysis =
-            await scanMarket(coin);
+        await scanMarket(coin);
 
 
 
@@ -219,21 +286,28 @@ async function scanAllCoins(){
             );
 
 
+
             console.log(
-                `${coin} | ${analysis.signal} | ${analysis.change}%`
+
+            `${coin} | ${analysis.signal} | ${analysis.confidence}`
+
             );
 
 
         }
 
 
-        // API limit protection
+
+        // Binance rate protection
+
         await new Promise(
-            r=>setTimeout(r,200)
+            resolve =>
+            setTimeout(resolve,200)
         );
 
 
     }
+
 
 
 
@@ -245,25 +319,58 @@ async function scanAllCoins(){
 
 
 
+
+
+
+
 // ===============================
-// Best Signals Only
+// Get Best Signals
 // ===============================
 
 async function getSignals(){
 
 
     const market =
-        await scanAllCoins();
+    await scanAllCoins();
 
 
 
-    return market.filter(
+
+    return market
+
+    .filter(
         coin =>
-            coin.signal !== "WAIT"
+        coin.signal !== "WAIT"
+    )
+
+
+    .sort(
+        (a,b)=>{
+
+
+            const A =
+            Number(
+            a.confidence.replace("%","")
+            );
+
+
+            const B =
+            Number(
+            b.confidence.replace("%","")
+            );
+
+
+            return B-A;
+
+
+        }
     );
 
 
 }
+
+
+
 
 
 
