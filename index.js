@@ -100,7 +100,7 @@ async function connectToWA() {
 *╰━━━━━━━━━━━━━╯*`;
 
       await NIMIRA_MD.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
-        image: { url: `https://raw.githubusercontent.com/nimiranethvidu245-png/NIMIRA-MD/main/Images/IMG_20260719_092754.jpg` },
+        image: { url: `https://github.com/nimiranethvidu245-png/NIMIRA-MD/blob/main/Images/IMG_20260719_092754.jpg` },
         caption: up
       }).catch(()=>{});
 
