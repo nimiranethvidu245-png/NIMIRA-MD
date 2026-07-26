@@ -24,7 +24,7 @@ module.exports = {
 
 Owner: NIMIRA`,
 
-  BOT_OWNER: process.env.BOT_OWNER || "94769850638",
+  BOT_OWNER: process.env.BOT_OWNER || "94701275068",
   PREFIX: process.env.PREFIX || ".",
   PORT: process.env.PORT || 8000
 };
